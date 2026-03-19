@@ -7,90 +7,63 @@ import plotly.express as px
 st.set_page_config(page_title="Cloud Billing Command Center", layout="wide", page_icon="⚡")
 
 # --- 🌌 Advanced Cyberpunk Custom CSS ---
-# --- 🌌 High-Contrast Cyberpunk CSS ---
+# --- 🌌 High-Contrast Cyberpunk CSS (Fixed Indentation) ---
 st.markdown("""
-    <style>
-    /* พื้นหลังหลัก */
-    .stApp {
-        background-color: #0d1117;
-        color: #ffffff; /* ปรับตัวหนังสือหลักเป็นสีขาวบริสุทธิ์ */
-    }
-    
-    /* กล่อง Metric - ปรับตัวหนังสือหัวข้อให้สว่างขึ้น */
-    div[data-testid="stMetricLabel"] > div > p {
-        color: #00d4ff !important; /* เปลี่ยนหัวข้อกล่องเป็นสีฟ้านีออนสว่าง */
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        font-size: 0.9rem !important;
-        font-weight: 900 !important;
-        text-shadow: 0 0 5px rgba(0, 212, 255, 0.4);
-    }
+<style>
+/* พื้นหลังหลัก */
+.stApp {
+    background-color: #0d1117;
+    color: #ffffff !important;
+}
 
-    /* ตัวเลข Metric - เน้นความเรืองแสงสีขาว-ฟ้า */
-    div[data-testid="stMetricValue"] > div {
-        color: #ffffff !important; /* ตัวเลขเป็นสีขาวสว่าง */
-        text-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff; /* รัศมีนีออนฟ้า */
-        font-family: 'Courier New', monospace;
-        font-size: 2.2rem !important;
-    }
+/* กล่อง Metric */
+div[data-testid="stMetric"] {
+    background-color: #161b22;
+    border: 1px solid #30363d;
+    border-left: 4px solid #00d4ff;
+    padding: 20px;
+    border-radius: 12px;
+}
 
-    /* หัวข้อ Subheader (เช่น Consumption Waveform) */
-    .stMarkdown h3, .stMarkdown h2, .stMarkdown h1 {
-        color: #ffffff !important;
-        text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-    }
+/* หัวข้อกล่อง (Label) */
+div[data-testid="stMetricLabel"] > div > p {
+    color: #00d4ff !important;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.9rem !important;
+    font-weight: 900 !important;
+    text-shadow: 0 0 5px rgba(0, 212, 255, 0.4);
+}
 
-    /* ปรับแต่งตาราง (Dataframe) ให้ตัวหนังสือขาว */
-    .stDataFrame {
-        background-color: #161b22;
-        color: #ffffff !important;
-    }
-    
-    /* ข้อความในสถานะ Progress Bar */
-    .stMarkdown p, .stMarkdown span {
-        color: #ffffff !important;
-        font-weight: 500;
-    }
+/* ตัวเลขเรืองแสง (Value) */
+div[data-testid="stMetricValue"] > div {
+    color: #ffffff !important;
+    text-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff;
+    font-family: 'Courier New', monospace;
+    font-size: 2.2rem !important;
+    font-weight: 800 !important;
+}
 
-    /* เส้น Divider */
-    hr {
-        border-color: #00d4ff !important;
-        opacity: 0.3;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+/* หัวข้อ Title */
+h1 {
+    color: #00d4ff !important;
+    text-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+}
 
-    /* พาดหัว Title นีออน */
-    h1 {
-        color: #00d4ff;
-        text-shadow: 2px 2px 15px rgba(0, 212, 255, 0.6);
-        text-transform: uppercase;
-        letter-spacing: 4px;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+/* ข้อความทั่วไป */
+.stMarkdown p, .stMarkdown span, stSubheader {
+    color: #ffffff !important;
+}
 
-    /* ตกแต่งปุ่ม Refresh ให้เข้ากับธีม */
-    .stButton>button {
-        background-color: #1f6feb;
-        color: white;
-        border: 1px solid #00d4ff;
-        border-radius: 8px;
-        font-weight: bold;
-        text-transform: uppercase;
-    }
-    .stButton>button:hover {
-        background-color: #00d4ff;
-        color: #0d1117;
-        box-shadow: 0 0 15px #00d4ff;
-    }
-
-    /* Progress Bar แบบเลเซอร์ */
-    .stProgress > div > div > div > div {
-        background-image: linear-gradient(to right, #00d4ff, #008bcf);
-        box-shadow: 0 0 10px #00d4ff;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+/* Progress Bar */
+.stProgress > div > div > div > div {
+    background-image: linear-gradient(to right, #00d4ff, #008bcf);
+    box-shadow: 0 0 10px #00d4ff;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # --- 2. Header & Control ---
 col_title, col_btn = st.columns([4, 1])
