@@ -7,46 +7,58 @@ import plotly.express as px
 st.set_page_config(page_title="Cloud Billing Command Center", layout="wide", page_icon="⚡")
 
 # --- 🌌 Advanced Cyberpunk Custom CSS ---
+# --- 🌌 High-Contrast Cyberpunk CSS ---
 st.markdown("""
     <style>
-    /* พื้นหลังหลักของระบบ */
+    /* พื้นหลังหลัก */
     .stApp {
         background-color: #0d1117;
-        color: #e6edf3;
+        color: #ffffff; /* ปรับตัวหนังสือหลักเป็นสีขาวบริสุทธิ์ */
     }
     
-    /* กล่อง Metric แบบมีขอบนีออนและเงาเรืองแสง */
-    div[data-testid="stMetric"] {
-        background-color: #161b22;
-        border: 1px solid #30363d;
-        border-left: 4px solid #00d4ff;
-        padding: 20px;
-        border-radius: 12px;
-        transition: 0.3s ease-in-out;
-    }
-    div[data-testid="stMetric"]:hover {
-        border-color: #00d4ff;
-        box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
-        transform: translateY(-2px);
-    }
-
-    /* ตัวเลขเรืองแสงนีออน (Neon Glow Effect) */
-    div[data-testid="stMetricValue"] > div {
-        color: #00d4ff !important;
-        text-shadow: 0 0 5px #00d4ff, 0 0 10px #00d4ff, 0 0 20px rgba(0, 212, 255, 0.5);
-        font-family: 'Courier New', monospace;
-        font-weight: 800 !important;
-        font-size: 2rem !important;
-    }
-
-    /* หัวข้อกล่องแบบ Futuristic */
+    /* กล่อง Metric - ปรับตัวหนังสือหัวข้อให้สว่างขึ้น */
     div[data-testid="stMetricLabel"] > div > p {
-        color: #8b949e !important;
+        color: #00d4ff !important; /* เปลี่ยนหัวข้อกล่องเป็นสีฟ้านีออนสว่าง */
         text-transform: uppercase;
         letter-spacing: 2px;
-        font-size: 0.85rem !important;
-        font-weight: bold;
+        font-size: 0.9rem !important;
+        font-weight: 900 !important;
+        text-shadow: 0 0 5px rgba(0, 212, 255, 0.4);
     }
+
+    /* ตัวเลข Metric - เน้นความเรืองแสงสีขาว-ฟ้า */
+    div[data-testid="stMetricValue"] > div {
+        color: #ffffff !important; /* ตัวเลขเป็นสีขาวสว่าง */
+        text-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff; /* รัศมีนีออนฟ้า */
+        font-family: 'Courier New', monospace;
+        font-size: 2.2rem !important;
+    }
+
+    /* หัวข้อ Subheader (เช่น Consumption Waveform) */
+    .stMarkdown h3, .stMarkdown h2, .stMarkdown h1 {
+        color: #ffffff !important;
+        text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+    }
+
+    /* ปรับแต่งตาราง (Dataframe) ให้ตัวหนังสือขาว */
+    .stDataFrame {
+        background-color: #161b22;
+        color: #ffffff !important;
+    }
+    
+    /* ข้อความในสถานะ Progress Bar */
+    .stMarkdown p, .stMarkdown span {
+        color: #ffffff !important;
+        font-weight: 500;
+    }
+
+    /* เส้น Divider */
+    hr {
+        border-color: #00d4ff !important;
+        opacity: 0.3;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
     /* พาดหัว Title นีออน */
     h1 {
