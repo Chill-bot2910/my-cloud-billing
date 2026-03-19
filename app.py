@@ -33,18 +33,24 @@ try:
         val_tokens = latest.get('Gemini Tokens', 0)
         display_tokens = 0 if pd.isna(val_tokens) else val_tokens
 
-        # 4. แสดงผล 4 กล่องไฮไลท์ (Metrics)
-        col1, col2, col3, col4 = st.columns(4)
+        # 4. แสดงผล 5 กล่องไฮไลท์ (ปรับเป็น 5 คอลัมน์)
+        col1, col2, col3, col4, col5 = st.columns(5)
+        
         with col1:
             st.metric("💰 ยอดรวม (บาท)", f"฿{total_thb:,.2f}")
+        
         with col2:
-            st.metric("🤖 Gemini Cost", f"${gcp_usd:,.2f}")
+            st.metric("🤖 Gemini ($)", f"${gcp_usd:,.2f}")
+            
         with col3:
-            st.metric("📊 Token Usage", f"{display_tokens:,.0f}")
+            # --- ช่องที่เพิ่มใหม่สำหรับ DigitalOcean ---
+            st.metric("💧 DigitalOcean ($)", f"${do_usd:,.2f}")
+            
         with col4:
-            st.metric("💹 Rate", f"{ex_rate:.2f}")
+            st.metric("📊 Tokens", f"{display_tokens:,.0f}")
 
-        st.markdown("---")
+        with col5:
+            st.metric("💹 Rate", f"{ex_rate:.2f}")
 
         # 5. กราฟและสัดส่วน
         left_col, right_col = st.columns([2, 1])
