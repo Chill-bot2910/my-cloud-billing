@@ -4,7 +4,7 @@ from datetime import datetime
 import plotly.express as px
 
 # 1. ตั้งค่าหน้าเว็บ (บรรทัดแรกสุดเสมอ)
-st.set_page_config(page_title="Cloud Billing Dashboard", layout="wide")
+# st.set_page_config(page_title="Cloud Billing Dashboard", layout="wide")
 
 # --- วางตรงนี้ครับ ---
 col_title, col_btn = st.columns([4, 1])
