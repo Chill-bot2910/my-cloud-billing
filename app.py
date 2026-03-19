@@ -3,83 +3,86 @@ import pandas as pd
 from datetime import datetime
 import plotly.express as px
 
-# 1. ตั้งค่าหน้าเว็บ (Cyberpunk Mode)
-st.set_page_config(page_title="Cloud Billing Command Center", layout="wide", page_icon="⚡")
+# 1. ตั้งค่าหน้าเว็บ (Minimal & Clean)
+st.set_page_config(page_title="Cloud Billing | Minimal", layout="wide", page_icon="☁️")
 
-# --- 🌌 Advanced Cyberpunk Custom CSS ---
-# --- 🌌 High-Contrast Cyberpunk CSS (Fixed Indentation) ---
+# --- 🎨 Minimal Pastel Custom CSS ---
 st.markdown("""
 <style>
-/* พื้นหลังหลัก */
+/* พื้นหลังสีขาวนวลสบายตา */
 .stApp {
-    background-color: #0d1117;
-    color: #ffffff !important;
+    background-color: #fcfcfd;
+    color: #31333f;
 }
 
-/* กล่อง Metric */
+/* กล่อง Metric แบบโค้งมนและมีเงาบางๆ (Soft Shadow) */
 div[data-testid="stMetric"] {
-    background-color: #161b22;
-    border: 1px solid #30363d;
-    border-left: 4px solid #00d4ff;
+    background: white;
+    border: 1px solid #f0f2f6;
     padding: 20px;
-    border-radius: 12px;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
 }
 
-/* หัวข้อกล่อง (Label) */
-div[data-testid="stMetricLabel"] > div > p {
-    color: #00d4ff !important;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-size: 0.9rem !important;
-    font-weight: 900 !important;
-    text-shadow: 0 0 5px rgba(0, 212, 255, 0.4);
-}
-
-/* ตัวเลขเรืองแสง (Value) */
+/* ตัวเลข Metric สีเข้มชัดเจนแต่ไม่ปวดตา */
 div[data-testid="stMetricValue"] > div {
-    color: #ffffff !important;
-    text-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff;
-    font-family: 'Courier New', monospace;
-    font-size: 2.2rem !important;
-    font-weight: 800 !important;
+    color: #1f2937 !important;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.8rem !important;
+    font-weight: 600 !important;
 }
 
-/* หัวข้อ Title */
+/* หัวข้อกล่องสีพาสเทล */
+div[data-testid="stMetricLabel"] > div > p {
+    color: #6b7280 !important;
+    text-transform: none;
+    letter-spacing: 0px;
+    font-size: 0.95rem !important;
+}
+
+/* หัวข้อ Title แบบ Minimal Gradient */
 h1 {
-    color: #00d4ff !important;
-    text-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
-    text-transform: uppercase;
-    letter-spacing: 4px;
+    background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
 }
 
-/* ข้อความทั่วไป */
-.stMarkdown p, .stMarkdown span, stSubheader {
-    color: #ffffff !important;
+/* ปุ่ม Refresh แบบพาสเทล */
+.stButton>button {
+    background-color: #f3f4f6;
+    color: #374151;
+    border: none;
+    border-radius: 10px;
+    transition: 0.2s;
+}
+.stButton>button:hover {
+    background-color: #e5e7eb;
+    color: #111827;
 }
 
-/* Progress Bar */
+/* Progress Bar สีพาสเทล */
 .stProgress > div > div > div > div {
-    background-image: linear-gradient(to right, #00d4ff, #008bcf);
-    box-shadow: 0 0 10px #00d4ff;
+    background-image: linear-gradient(to right, #a18cd1 0%, #fbc2eb 100%);
+    border-radius: 10px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# --- 2. Header & Control ---
-col_title, col_btn = st.columns([4, 1])
-with col_title:
-    st.title("⚡ CLOUD COMMAND CENTER")
-    st.markdown(f"📡 **SYSTEM STATUS:** `ACTIVE` | 🗓️ **TIMESTAMP:** `{datetime.now().strftime('%d/%m/%Y %H:%M')}`")
-
-with col_btn:
+# --- 2. Header ---
+col_t, col_b = st.columns([4, 1])
+with col_t:
+    st.title("Cloud Billing Dashboard")
+    st.markdown(f"✨ **Status:** Operational  |  🕒 **Updated:** {datetime.now().strftime('%H:%M')}")
+with col_b:
     st.write("##")
-    if st.button("🔄 RE-SYNC DATA", use_container_width=True):
+    if st.button("🔄 Sync Now", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
 
-st.markdown("<hr style='border-color: #30363d;'>", unsafe_allow_html=True)
+st.markdown("---")
 
-# --- 3. ดึงข้อมูลจาก Google Sheets ---
+# --- 3. ดึงข้อมูล ---
 sheet_id = "11_nlGeuVRskPtH8K3QZ2BtEOHAon5w7jl2w37GupWtI"
 sheet_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
 
@@ -88,7 +91,6 @@ try:
     df.columns = df.columns.str.strip()
 
     if not df.empty:
-        # เตรียมข้อมูลแถวล่าสุด
         latest = df.iloc[-1]
         total_thb = float(latest.get('Total Cost (THB)', 0))
         total_usd_val = float(latest.get('Total Cost (USD)', 0))
@@ -98,70 +100,53 @@ try:
         val_tokens = latest.get('Gemini Tokens', 0)
         display_tokens = 0 if pd.isna(val_tokens) else val_tokens
 
-        # --- 4. Neon Metrics Row (5 กล่องครบถ้วน) ---
+        # --- 4. Metric Grid (5 กล่อง) ---
         m1, m2, m3, m4, m5 = st.columns(5)
-        m1.metric("💳 Total (THB)", f"฿{total_thb:,.2f}")
-        m2.metric("🧠 Gemini ($)", f"${gcp_usd:,.2f}")
-        m3.metric("🛰️ DO Cluster", f"${do_usd:,.2f}")
-        m4.metric("📊 Tokens", f"{display_tokens:,.0f}")
-        m5.metric("💹 EX Rate", f"{ex_rate:.2f}")
+        m1.metric("Total Spent (THB)", f"฿{total_thb:,.2f}")
+        m2.metric("Gemini (GCP)", f"${gcp_usd:,.2f}")
+        m3.metric("DigitalOcean", f"${do_usd:,.2f}")
+        m4.metric("Tokens Used", f"{display_tokens:,.0f}")
+        m5.metric("Exchange Rate", f"{ex_rate:.2f}")
 
         st.write("##")
 
-        # --- 5. Main Analysis Grid ---
-        left_col, right_col = st.columns([2, 1])
+        # --- 5. Main Area ---
+        l_col, r_col = st.columns([2, 1])
 
-        with left_col:
+        with l_col:
             with st.container(border=True):
-                st.subheader("⚡ Consumption Waveform")
+                st.subheader("📈 Monthly Trend")
                 chart_df = df.copy().set_index('Date')
-                st.area_chart(chart_df['Total Cost (THB)'], color="#1f6feb")
+                # ใช้กราฟเส้นพาสเทลนุ่มๆ
+                st.area_chart(chart_df['Total Cost (THB)'], color="#a18cd1")
                 
                 st.divider()
-                
-                st.subheader("🔋 Power Grid Status ($15.00 Limit)")
-                budget_limit = 15.0
-                usage_percent = (total_usd_val / budget_limit)
-                status_text = f"CORE LOAD: {usage_percent*100:.1f}%"
-                
-                if usage_percent >= 1.0:
-                    st.error(f"🚨 CRITICAL OVERLOAD: {status_text}")
-                elif usage_percent >= 0.8:
-                    st.warning(f"⚠️ HIGH LOAD WARNING: {status_text}")
-                else:
-                    st.info(f"✅ SYSTEM NOMINAL: {status_text}")
-                
-                st.progress(min(usage_percent, 1.0))
+                st.subheader("🏷️ Budget Overview ($15.00)")
+                usage_p = (total_usd_val / 15.0)
+                st.progress(min(usage_p, 1.0), text=f"{usage_p*100:.1f}% of monthly budget used")
 
-        with right_col:
+        with r_col:
             with st.container(border=True):
-                st.subheader("💠 Resource Breakdown")
+                st.subheader("🍰 Cost Split")
                 pie_df = pd.DataFrame({
-                    "Source": ["Gemini (GCP)", "DigitalOcean"],
+                    "Source": ["GCP", "DigitalOcean"],
                     "Cost": [gcp_usd, do_usd]
                 })
-                # ปรับแต่งสีพายให้นีออนส้ม-ฟ้า
-                fig = px.pie(pie_df, values='Cost', names='Source', hole=0.7,
-                             color_discrete_map={"Gemini (GCP)": "#FF9F00", "DigitalOcean": "#00D4FF"})
-                fig.update_layout(
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
-                    font_color="#e6edf3",
-                    showlegend=False,
-                    margin=dict(t=10, b=10, l=10, r=10)
-                )
+                # สีพาสเทล: ม่วงอ่อน และ ฟ้าอ่อน
+                fig = px.pie(pie_df, values='Cost', names='Source', hole=0.6,
+                             color_discrete_sequence=["#a18cd1", "#84fab0"])
+                fig.update_layout(showlegend=False, margin=dict(t=0, b=0, l=0, r=0))
                 st.plotly_chart(fig, use_container_width=True)
 
             with st.container(border=True):
-                st.subheader("🔮 Neural Forecast")
-                day_of_month = datetime.now().day
-                projected_thb = (total_thb / day_of_month) * 31
-                st.metric("Estimated Monthly End", f"฿{projected_thb:,.2f}", 
-                          delta=f"{(projected_thb - total_thb):,.2f} THB to go")
+                st.subheader("🔮 Forecast")
+                day = datetime.now().day
+                projected = (total_thb / day) * 31
+                st.metric("Estimated Total", f"฿{projected:,.2f}")
 
-        # --- 6. Data Stream ---
-        with st.expander("💾 ACCESS DATABASE LOG"):
+        # --- 6. Logs ---
+        with st.expander("📄 View History"):
             st.dataframe(df.sort_index(ascending=False), use_container_width=True)
 
 except Exception as e:
-    st.error(f"🚫 SYSTEM BREACH / DATA ERROR: {e}")
+    st.error(f"Error: {e}")
