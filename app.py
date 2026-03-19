@@ -33,18 +33,19 @@ try:
         val_tokens = latest.get('Gemini Tokens', 0)
         display_tokens = 0 if pd.isna(val_tokens) else val_tokens
 
-        # 4. แสดงผล 5 กล่องไฮไลท์ (ปรับเป็น 5 คอลัมน์)
+        # 4. แสดงผล Metrics พร้อมสีสัน
         col1, col2, col3, col4, col5 = st.columns(5)
         
         with col1:
             st.metric("💰 ยอดรวม (บาท)", f"฿{total_thb:,.2f}")
         
         with col2:
-            st.metric("🤖 Gemini ($)", f"${gcp_usd:,.2f}")
+            # ใช้ delta เพื่อแสดงสี (ส้ม/แดง ในทางเทคนิคคือสีแจ้งเตือน แต่เราเน้นให้ต่าง)
+            st.metric("🟠 Gemini ($)", f"${gcp_usd:,.2f}", delta="GCP", delta_color="off")
             
         with col3:
-            # --- ช่องที่เพิ่มใหม่สำหรับ DigitalOcean ---
-            st.metric("💧 DigitalOcean ($)", f"${do_usd:,.2f}")
+            # DigitalOcean ใช้สีฟ้า (Normal)
+            st.metric("🔵 DigitalOcean ($)", f"${do_usd:,.2f}", delta="DO", delta_color="normal")
             
         with col4:
             st.metric("📊 Tokens", f"{display_tokens:,.0f}")
@@ -52,24 +53,29 @@ try:
         with col5:
             st.metric("💹 Rate", f"{ex_rate:.2f}")
 
-        # 5. กราฟและสัดส่วน
+        st.markdown("---")
+
+        # 5. กราฟวงกลมแยกสีส้ม-ฟ้า (แบบชัดเจน)
         left_col, right_col = st.columns([2, 1])
         
         with left_col:
             st.subheader("📈 แนวโน้มค่าใช้จ่ายรายวัน (THB)")
-            if 'Date' in df.columns:
-                chart_df = df.copy()
-                chart_df = chart_df.set_index('Date')
-                st.area_chart(chart_df['Total Cost (THB)'])
+            chart_df = df.copy().set_index('Date')
+            st.area_chart(chart_df['Total Cost (THB)'])
 
         with right_col:
             st.subheader("🍰 Expense Distribution")
             pie_df = pd.DataFrame({
-                "Source": ["Google (Gemini)", "DigitalOcean"],
+                "Source": ["Gemini (GCP)", "DigitalOcean"],
                 "Cost": [gcp_usd, do_usd]
             })
+            # กำหนดสี Hex Code: ส้ม (#FF9900) และ ฟ้า (#008bcf)
             fig = px.pie(pie_df, values='Cost', names='Source', hole=0.4,
-                         color_discrete_sequence=['#4285F4', '#008bcf'])
+                         color_discrete_map={
+                             "Gemini (GCP)": "#FF9900", 
+                             "DigitalOcean": "#008bcf"
+                         })
+            fig.update_traces(textinfo='percent+label')
             st.plotly_chart(fig, use_container_width=True)
 
         # 6. Forecast (ทำนายยอดสิ้นเดือน)
