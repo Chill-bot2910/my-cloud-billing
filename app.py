@@ -27,13 +27,22 @@ try:
         do_usd = float(latest.get('do_usd', 5.21))
         tokens = latest.get('Gemini Tokens', 0)
 
-        # --- 3. ส่วนทำนายยอดสิ้นเดือน (Forecast) ---
+       # --- 3. ส่วนทำนายยอดสิ้นเดือน (Forecast) ---
         day_of_month = datetime.now().day
-        days_in_month = 31 # ประมาณการ (หรือใช้ calendar.monthrange ก็ได้)
+        days_in_month = 31 # ประมาณการจำนวนวันในเดือนนี้
         
-        # คำนวณยอดเฉลี่ยต่อวัน แล้วคูณจำนวนวันทั้งเดือน
-        daily_average_thb = total_thb / day_of_month
-        projected_thb = daily_average_thb * days_in_month
+        # สูตร: (ยอดปัจจุบัน / วันที่ผ่านมาแล้ว) * จำนวนวันทั้งเดือน
+        projected_thb = (total_thb / day_of_month) * days_in_month
+        projected_usd_total = projected_thb / ex_rate
+
+        # ... (ส่วน Metrics และ กราฟ อื่นๆ ของคุณ) ...
+
+        # --- 6. Forecast Section (จุดที่แก้ชื่อตัวแปรให้ถูกต้อง) ---
+        st.markdown("---")
+        st.success(f"💡 **Forecast:** สิ้นเดือนนี้คาดว่า Choo จะมียอดรวมประมาณ **฿{projected_thb:,.2f}** (ประมาณ **${projected_usd_total:,.2f}**)")
+
+except Exception as e:
+    st.error(f"❌ Error: {e}")
 
         # --- 4. แสดง Metrics ---
         col1, col2, col3, col4 = st.columns(4)
