@@ -3,9 +3,21 @@ import pandas as pd
 from datetime import datetime
 import plotly.express as px
 
-# 1. ตั้งค่าหน้าเว็บ
+# 1. ตั้งค่าหน้าเว็บ (บรรทัดแรกสุดเสมอ)
 st.set_page_config(page_title="Cloud Billing Dashboard", layout="wide")
-st.title("📊 My Cloud Billing Dashboard")
+
+# --- วางตรงนี้ครับ ---
+col_title, col_btn = st.columns([4, 1])
+
+with col_title:
+    st.title("📊 My Cloud Billing Dashboard")
+
+with col_btn:
+    st.write("##") # ปรับระยะให้ปุ่มลงมาตรงกับชื่อ Title
+    if st.button("🔄 Refresh Data"):
+        st.cache_data.clear() 
+        st.rerun()
+st.title("📊 My Cloud Billing Dashboard") 
 st.markdown(f"_Last Updated: {datetime.now().strftime('%d/%m/%Y %H:%M')}_")
 st.markdown("---")
 
