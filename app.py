@@ -55,6 +55,24 @@ try:
 
         st.markdown("---")
 
+        # --- 4.5 ส่วนแสดง Progress Bar (แถบพลังงบประมาณ) ---
+        st.markdown("### 📊 Budget Usage Status")
+        
+        # ตั้งค่า Budget ตามที่เราตั้งใน n8n (หรือดึงจาก Google Sheet ถ้าคุณทำคอลัมน์ไว้)
+        budget_limit = 15.0  # แก้ตัวเลขนี้ให้ตรงกับใน n8n ของ Choo นะครับ
+        usage_percent = (total_usd / budget_limit)
+        
+        # แสดงแถบ Progress
+        if usage_percent > 1.0:
+            st.error(f"⚠️ คุณใช้เงินเกินงบไปแล้ว! ({usage_percent*100:.1f}%)")
+            st.progress(1.0) # เต็มหลอดสีแดง
+        elif usage_percent >= 0.8:
+            st.warning(f"🟡 ใกล้เต็มแล้ว! ใช้ไปแล้ว {usage_percent*100:.1f}%")
+            st.progress(usage_percent)
+        else:
+            st.info(f"✅ สถานะปกติ: ใช้ไปแล้ว {usage_percent*100:.1f}% ของงบ ${budget_limit}")
+            st.progress(usage_percent)
+
         # 5. กราฟวงกลมแยกสีส้ม-ฟ้า (แบบชัดเจน)
         left_col, right_col = st.columns([2, 1])
         
