@@ -4,14 +4,14 @@ from datetime import datetime, timedelta
 import plotly.express as px
 
 # 1. ตั้งค่าหน้าเว็บ
-st.set_page_config(page_title="Cloud Billing | Vibrant 6", layout="wide", page_icon="🌸")
+st.set_page_config(page_title="Cloud Billing | Vibrant Pastel", layout="wide", page_icon="🌸")
 
-# --- 🎨 Vibrant Itim Custom CSS ---
+# --- 🎨 Smooth Pastel Custom CSS ---
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Itim&display=swap');
 
-/* ใช้ฟอนต์ Itim ทุกจุด ยกเว้น Icon */
+/* บังคับใช้ฟอนต์ Itim ทุกจุด */
 html, body, [class*="css"], .stMarkdown, p, div:not([data-testid="stIcon"]), h1, h2, h3, h4, span, label, .stMetricValue {
     font-family: 'Itim', cursive !important;
 }
@@ -20,7 +20,7 @@ html, body, [class*="css"], .stMarkdown, p, div:not([data-testid="stIcon"]), h1,
     background-color: #fcfcfd;
 }
 
-/* กล่อง Metric - ปรับแต่งสีตัวเลขแยกตามคอลัมน์ (1-6) */
+/* กล่อง Metric - ปรับแต่งสีตัวเลขให้เข้มขึ้นเพื่อให้ตัดกับพื้นหลังขาว */
 div[data-testid="stMetric"] {
     background: white;
     border: 1px solid #f0f2f6;
@@ -29,21 +29,21 @@ div[data-testid="stMetric"] {
     box-shadow: 0 4px 12px rgba(0,0,0,0.03);
     transition: all 0.4s ease;
 }
+
 div[data-testid="stMetric"]:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(0,0,0,0.06);
 }
 
-/* --- 🌈 กำหนดสีตัวเลขแยก 6 กล่อง --- */
-div[data-testid="column"]:nth-child(1) div[data-testid="stMetricValue"] > div { color: #8e44ad !important; } /* ม่วง: ยอดรวม */
-div[data-testid="column"]:nth-child(2) div[data-testid="stMetricValue"] > div { color: #e91e63 !important; } /* ชมพู: Gemini */
-div[data-testid="column"]:nth-child(3) div[data-testid="stMetricValue"] > div { color: #00bcd4 !important; } /* ฟ้า: Server */
-div[data-testid="column"]:nth-child(4) div[data-testid="stMetricValue"] > div { color: #27ae60 !important; } /* เขียว: Tokens */
-div[data-testid="column"]:nth-child(5) div[data-testid="stMetricValue"] > div { color: #f39c12 !important; } /* ส้ม: Rate */
-div[data-testid="column"]:nth-child(6) div[data-testid="stMetricValue"] > div { color: #ff5722 !important; } /* แดงส้ม: คาดการณ์ */
+/* --- 🌈 กำหนดสีตัวเลขพาสเทลแบบเข้ม (ตัดกับพื้นหลังขาว) --- */
+div[data-testid="column"]:nth-child(1) div[data-testid="stMetricValue"] > div { color: #7c4dff !important; } /* ม่วง */
+div[data-testid="column"]:nth-child(2) div[data-testid="stMetricValue"] > div { color: #f06292 !important; } /* ชมพู */
+div[data-testid="column"]:nth-child(3) div[data-testid="stMetricValue"] > div { color: #00acc1 !important; } /* ฟ้าเขียว */
+div[data-testid="column"]:nth-child(4) div[data-testid="stMetricValue"] > div { color: #43a047 !important; } /* เขียว */
+div[data-testid="column"]:nth-child(5) div[data-testid="stMetricValue"] > div { color: #fb8c00 !important; } /* ส้ม */
 
 div[data-testid="stMetricValue"] > div {
-    font-size: 1.8rem !important;
+    font-size: 2rem !important;
     font-weight: 700 !important;
 }
 
@@ -53,21 +53,20 @@ h1 {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     font-size: 2.8rem !important;
-    font-weight: 700;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# --- 2. Header & Timezone ---
+# --- 2. Header & Timezone (GMT+7) ---
 now_th = datetime.utcnow() + timedelta(hours=7)
 
 col_t, col_b = st.columns([4, 1])
 with col_t:
-    st.title("Cloud Billing Center")
-    st.markdown(f"🌸 **สถานะ:** ปกติ  |  🕒 **อัปเดต:** {now_th.strftime('%H:%M:%S')} น.")
+    st.title("ระบบติดตามค่าใช้จ่าย Cloud")
+    st.markdown(f"🌸 **สถานะ:** ทำงานปกติ  |  🕒 **อัปเดตล่าสุด:** {now_th.strftime('%H:%M:%S')} น.")
 with col_b:
     st.write("##")
-    if st.button("🔄 Sync ข้อมูล", use_container_width=True):
+    if st.button("🔄 อัปเดตข้อมูล", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
 
@@ -90,58 +89,61 @@ try:
         do_usd = float(latest.get('do_usd', 0))
         val_tokens = latest.get('Gemini Tokens', 0)
         display_tokens = 0 if pd.isna(val_tokens) else val_tokens
-        
-        # คำนวณคาดการณ์
-        day_now = now_th.day
-        projected = (total_thb / day_now) * 31
 
-        # --- 4. Metric Grid (6 กล่อง 6 สี) ---
-        m1, m2, m3, m4, m5, m6 = st.columns(6)
-        m1.metric("💰 ยอดรวม (บาท)", f"฿{total_thb:,.2f}")
-        m2.metric("🧠 Gemini ($)", f"${gcp_usd:,.2f}")
-        m3.metric("💧 Server ($)", f"${do_usd:,.2f}")
-        m4.metric("📊 Tokens", f"{display_tokens:,.0f}")
-        m5.metric("💹 EX Rate", f"{ex_rate:.2f}")
-        m6.metric("🔮 คาดการณ์สิ้นเดือน", f"฿{projected:,.2f}")
+        # --- 4. Metric Grid (5 กล่อง - ภาษาเต็มรูปแบบ) ---
+        m1, m2, m3, m4, m5 = st.columns(5)
+        m1.metric("💰 ยอดรวมทั้งหมด (บาท)", f"฿{total_thb:,.2f}")
+        m2.metric("🧠 ค่าใช้จ่าย Gemini (USD)", f"${gcp_usd:,.2f}")
+        m3.metric("💧 ค่าใช้จ่ายเซิร์ฟเวอร์ (USD)", f"${do_usd:,.2f}")
+        m4.metric("📊 จำนวนโทเคนที่ใช้งาน", f"{display_tokens:,.0f}")
+        m5.metric("💹 อัตราแลกเปลี่ยนปัจจุบัน", f"{ex_rate:.2f}")
 
         st.write("##")
 
-        # --- 5. Main Area ---
-        l_col, r_col = st.columns([2, 1])
+        # --- 5. Main Content Area (Layout 3 คอลัมน์) ---
+        # ปรับสัดส่วนให้กล่องสรุปรายเดือนเด่นขึ้น
+        l_col, m_col, r_col = st.columns([1.6, 1.0, 1.0])
 
         with l_col:
             with st.container(border=True):
-                st.subheader("📈 แนวโน้มค่าใช้จ่าย")
+                st.subheader("📈 แนวโน้มค่าใช้จ่ายรายวัน")
                 chart_df = df.copy().set_index('Date')
-                st.area_chart(chart_df['Total Cost (THB)'], color="#a18cd1")
+                st.area_chart(chart_df['Total Cost (THB)'], color="#7c4dff")
                 
                 st.divider()
-                st.subheader("🏁 งบประมาณ ($15.00)")
+                st.subheader("🏁 สถานะงบประมาณ ($15.00)")
                 usage_p = (total_usd_val / 15.0)
-                bar_color = "#4ade80" if usage_p < 0.5 else "#facc15" if usage_p < 0.8 else "#fbc2eb"
+                bar_color = "#4ade80" if usage_p < 0.5 else "#facc15" if usage_p < 0.8 else "#f87171"
                 st.markdown(f"""<style>.stProgress > div > div > div > div {{ background-color: {bar_color} !important; }}</style>""", unsafe_allow_html=True)
                 st.progress(min(usage_p, 1.0), text=f"ใช้วงเงินไปแล้ว: {usage_p*100:.1f}%")
 
+        # --- ส่วนสรุปรายเดือน (กลับมาแล้ว!) ---
+        with m_col:
+            with st.container(border=True):
+                st.subheader("🗓️ สรุปภาพรวมเดือนนี้")
+                st.markdown(f"**ยอดรวมสะสม:** <h2 style='color:#7c4dff; font-family:Itim;'>฿{total_thb:,.2f}</h2>", unsafe_allow_html=True)
+                st.markdown(f"**คิดเป็นเงินดอลลาร์:** <h3 style='color:#00acc1; font-family:Itim;'>${total_usd_val:,.2f}</h3>", unsafe_allow_html=True)
+                st.write("---")
+                day_now = now_th.day
+                avg_per_day = total_thb / day_now
+                st.write(f"🔹 ค่าใช้จ่ายเฉลี่ยต่อวัน: **฿{avg_per_day:,.2f}**")
+                st.write(f"🔹 จำนวนวันที่ผ่านมาแล้ว: **{day_now} วัน**")
+                st.write(f"🔹 จำนวนวันที่เหลือ: **{31 - day_now} วัน**")
+                st.markdown(f"**ประมาณการยอดสิ้นเดือน:** <h3 style='color:#f06292; font-family:Itim;'>฿{avg_per_day * 31:,.2f}</h3>", unsafe_allow_html=True)
+
         with r_col:
             with st.container(border=True):
-                st.subheader("🍰 สัดส่วนค่าใช้จ่าย")
-                pie_df = pd.DataFrame({"Source": ["GCP", "DO"], "Cost": [gcp_usd, do_usd]})
+                st.subheader("🍰 สัดส่วนค่าใช้จ่ายค่ายต่างๆ")
+                pie_df = pd.DataFrame({"Source": ["Gemini (GCP)", "DigitalOcean"], "Cost": [gcp_usd, do_usd]})
                 fig = px.pie(pie_df, values='Cost', names='Source', hole=0.6,
-                             color_discrete_sequence=["#8e44ad", "#00bcd4"])
-                fig.update_layout(showlegend=False, margin=dict(t=10, b=10, l=10, r=10), font=dict(family="Itim"))
+                             color_discrete_sequence=["#7c4dff", "#f06292"])
+                fig.update_layout(showlegend=False, margin=dict(t=20, b=20, l=20, r=20), font=dict(family="Itim"))
                 st.plotly_chart(fig, use_container_width=True)
-            
-            # ย้ายสรุปรายวันมาไว้ในกล่องเล็กข้างล่าง
-            with st.container(border=True):
-                st.subheader("🗓️ สรุปวันนี้")
-                avg_day = total_thb / day_now
-                st.write(f"เฉลี่ยวันละ: **฿{avg_day:,.2f}**")
-                st.write(f"เหลืออีก: **{31 - day_now} วัน**")
 
-        # --- 6. Table (ลบ Expander ออกถาวร แก้บั๊กตัวหนังสือซ้อน) ---
+        # --- 6. Table (ประวัติแบบคลีนๆ) ---
         st.write("##")
-        st.subheader("📄 รายละเอียดประวัติการใช้งาน")
+        st.subheader("📄 ประวัติการใช้งานย้อนหลัง")
         st.dataframe(df.sort_index(ascending=False), use_container_width=True, height=350)
 
 except Exception as e:
-    st.error(f"Error: {e}")
+    st.error(f"อุ๊ย! เกิดข้อผิดพลาด: {e}")
