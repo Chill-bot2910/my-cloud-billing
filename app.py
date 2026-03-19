@@ -14,19 +14,19 @@ st.markdown("""
     background-color: #fcfcfd;
 }
 
-/* กล่อง Metric พร้อม Shadow จางๆ และ Hover Effect */
+/* กล่อง Metric พร้อม Shadow และ Hover Effect */
 div[data-testid="stMetric"] {
     background: white;
     border: 1px solid #f0f2f6;
     padding: 20px;
     border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03); /* เงาจางๆ */
-    transition: all 0.3s ease-in-out; /* ตั้งค่าให้ขยับแบบนุ่มนวล */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    transition: all 0.3s ease-in-out;
 }
 
-/* เมื่อเมาส์ไปโดน (Hover) ให้ขยับขึ้นและเงาเข้มขึ้นนิดนึง */
+/* เอฟเฟกต์ลอยขึ้นเมื่อเมาส์โดน */
 div[data-testid="stMetric"]:hover {
-    transform: translateY(-5px); /* ขยับขึ้น 5 พิกเซล */
+    transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0,0,0,0.06);
     border-color: #d1d5db;
 }
@@ -38,7 +38,7 @@ div[data-testid="stMetricValue"] > div {
     font-weight: 700 !important;
 }
 
-/* หัวข้อ Title แบบไล่เฉดม่วง-ฟ้า */
+/* หัวข้อ Title ไล่เฉดสี */
 h1 {
     background: linear-gradient(90deg, #8e2de2 0%, #4a00e0 100%);
     -webkit-background-clip: text;
@@ -46,18 +46,15 @@ h1 {
     font-weight: 800;
 }
 
-/* ปรับแต่ง Container ทั่วไปให้มีเงาและ Hover เหมือนกัน */
+/* ปรับแต่งส่วน Container อื่นๆ */
 [data-testid="stVerticalBlockBorderWrapper"] {
     transition: all 0.3s ease;
-}
-[data-testid="stVerticalBlockBorderWrapper"]:hover {
-    transform: scale(1.01); /* ขยายใหญ่ขึ้นนิดเดียวพอให้ดูมีมิติ */
+    border-radius: 16px !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# --- 2. Header & Timezone Fix ---
-# แก้ไขเวลาให้เป็น GMT+7 (เวลาไทย)
+# --- 2. Header & Timezone Fix (GMT+7) ---
 now_th = datetime.utcnow() + timedelta(hours=7)
 
 col_t, col_b = st.columns([4, 1])
@@ -90,13 +87,13 @@ try:
         val_tokens = latest.get('Gemini Tokens', 0)
         display_tokens = 0 if pd.isna(val_tokens) else val_tokens
 
-        # --- 4. Metric Grid ---
+        # --- 4. Metric Grid พร้อม Emoji ---
         m1, m2, m3, m4, m5 = st.columns(5)
-        m1.metric("Total Spent (THB)", f"฿{total_thb:,.2f}")
-        m2.metric("Gemini (GCP)", f"${gcp_usd:,.2f}")
-        m3.metric("DigitalOcean", f"${do_usd:,.2f}")
-        m4.metric("Tokens Used", f"{display_tokens:,.0f}")
-        m5.metric("Exchange Rate", f"{ex_rate:.2f}")
+        m1.metric("💰 Total Spent", f"฿{total_thb:,.2f}")
+        m2.metric("🧠 Gemini (GCP)", f"${gcp_usd:,.2f}")
+        m3.metric("💧 DigitalOcean", f"${do_usd:,.2f}")
+        m4.metric("📊 Tokens Used", f"{display_tokens:,.0f}")
+        m5.metric("💹 EX Rate", f"{ex_rate:.2f}")
 
         st.write("##")
 
@@ -112,7 +109,7 @@ try:
                 st.divider()
                 st.subheader("🏁 Budget Tracker ($15.00)")
                 usage_p = (total_usd_val / 15.0)
-                st.progress(min(usage_p, 1.0), text=f"{usage_p*100:.1f}% used")
+                st.progress(min(usage_p, 1.0), text=f"Used: {usage_p*100:.1f}%")
 
         with r_col:
             with st.container(border=True):
@@ -127,10 +124,10 @@ try:
                 st.plotly_chart(fig, use_container_width=True)
 
             with st.container(border=True):
-                st.subheader("🔮 Month-End Forecast")
+                st.subheader("🔮 Forecast")
                 day = now_th.day
                 projected = (total_thb / day) * 31
-                st.metric("Estimated Total", f"฿{projected:,.2f}", delta=f"฿{projected - total_thb:,.2f} left")
+                st.metric("Estimated Total", f"฿{projected:,.2f}", delta=f"฿{projected - total_thb:,.2f}")
 
         # --- 6. Table ---
         with st.expander("📄 Full History"):
