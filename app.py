@@ -1,79 +1,69 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 import plotly.express as px
 
-# 1. ตั้งค่าหน้าเว็บ (Minimal & Clean)
-st.set_page_config(page_title="Cloud Billing | Minimal", layout="wide", page_icon="☁️")
+# 1. ตั้งค่าหน้าเว็บ
+st.set_page_config(page_title="Cloud Billing | Soft Minimal", layout="wide", page_icon="☁️")
 
-# --- 🎨 Minimal Pastel Custom CSS ---
+# --- 🎨 Soft Minimal Custom CSS ---
 st.markdown("""
 <style>
-/* พื้นหลังสีขาวนวลสบายตา */
+/* พื้นหลังนุ่มนวล */
 .stApp {
     background-color: #fcfcfd;
-    color: #31333f;
 }
 
-/* กล่อง Metric แบบโค้งมนและมีเงาบางๆ (Soft Shadow) */
+/* กล่อง Metric พร้อม Shadow จางๆ และ Hover Effect */
 div[data-testid="stMetric"] {
     background: white;
     border: 1px solid #f0f2f6;
     padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03); /* เงาจางๆ */
+    transition: all 0.3s ease-in-out; /* ตั้งค่าให้ขยับแบบนุ่มนวล */
 }
 
-/* ตัวเลข Metric สีเข้มชัดเจนแต่ไม่ปวดตา */
+/* เมื่อเมาส์ไปโดน (Hover) ให้ขยับขึ้นและเงาเข้มขึ้นนิดนึง */
+div[data-testid="stMetric"]:hover {
+    transform: translateY(-5px); /* ขยับขึ้น 5 พิกเซล */
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    border-color: #d1d5db;
+}
+
+/* ตัวเลข Metric */
 div[data-testid="stMetricValue"] > div {
-    color: #1f2937 !important;
-    font-family: 'Inter', sans-serif;
+    color: #111827 !important;
     font-size: 1.8rem !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
 }
 
-/* หัวข้อกล่องสีพาสเทล */
-div[data-testid="stMetricLabel"] > div > p {
-    color: #6b7280 !important;
-    text-transform: none;
-    letter-spacing: 0px;
-    font-size: 0.95rem !important;
-}
-
-/* หัวข้อ Title แบบ Minimal Gradient */
+/* หัวข้อ Title แบบไล่เฉดม่วง-ฟ้า */
 h1 {
-    background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+    background: linear-gradient(90deg, #8e2de2 0%, #4a00e0 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    font-weight: 700;
+    font-weight: 800;
 }
 
-/* ปุ่ม Refresh แบบพาสเทล */
-.stButton>button {
-    background-color: #f3f4f6;
-    color: #374151;
-    border: none;
-    border-radius: 10px;
-    transition: 0.2s;
+/* ปรับแต่ง Container ทั่วไปให้มีเงาและ Hover เหมือนกัน */
+[data-testid="stVerticalBlockBorderWrapper"] {
+    transition: all 0.3s ease;
 }
-.stButton>button:hover {
-    background-color: #e5e7eb;
-    color: #111827;
-}
-
-/* Progress Bar สีพาสเทล */
-.stProgress > div > div > div > div {
-    background-image: linear-gradient(to right, #a18cd1 0%, #fbc2eb 100%);
-    border-radius: 10px;
+[data-testid="stVerticalBlockBorderWrapper"]:hover {
+    transform: scale(1.01); /* ขยายใหญ่ขึ้นนิดเดียวพอให้ดูมีมิติ */
 }
 </style>
 """, unsafe_allow_html=True)
 
-# --- 2. Header ---
+# --- 2. Header & Timezone Fix ---
+# แก้ไขเวลาให้เป็น GMT+7 (เวลาไทย)
+now_th = datetime.utcnow() + timedelta(hours=7)
+
 col_t, col_b = st.columns([4, 1])
 with col_t:
     st.title("Cloud Billing Dashboard")
-    st.markdown(f"✨ **Status:** Operational  |  🕒 **Updated:** {datetime.now().strftime('%H:%M')}")
+    st.markdown(f"✨ **Status:** Operational  |  🕒 **Updated:** {now_th.strftime('%H:%M:%S')} (ICT)")
 with col_b:
     st.write("##")
     if st.button("🔄 Sync Now", use_container_width=True):
@@ -100,7 +90,7 @@ try:
         val_tokens = latest.get('Gemini Tokens', 0)
         display_tokens = 0 if pd.isna(val_tokens) else val_tokens
 
-        # --- 4. Metric Grid (5 กล่อง) ---
+        # --- 4. Metric Grid ---
         m1, m2, m3, m4, m5 = st.columns(5)
         m1.metric("Total Spent (THB)", f"฿{total_thb:,.2f}")
         m2.metric("Gemini (GCP)", f"${gcp_usd:,.2f}")
@@ -110,20 +100,19 @@ try:
 
         st.write("##")
 
-        # --- 5. Main Area ---
+        # --- 5. Main Content Area ---
         l_col, r_col = st.columns([2, 1])
 
         with l_col:
             with st.container(border=True):
-                st.subheader("📈 Monthly Trend")
+                st.subheader("📈 Spending Trend")
                 chart_df = df.copy().set_index('Date')
-                # ใช้กราฟเส้นพาสเทลนุ่มๆ
-                st.area_chart(chart_df['Total Cost (THB)'], color="#a18cd1")
+                st.area_chart(chart_df['Total Cost (THB)'], color="#8e2de2")
                 
                 st.divider()
-                st.subheader("🏷️ Budget Overview ($15.00)")
+                st.subheader("🏁 Budget Tracker ($15.00)")
                 usage_p = (total_usd_val / 15.0)
-                st.progress(min(usage_p, 1.0), text=f"{usage_p*100:.1f}% of monthly budget used")
+                st.progress(min(usage_p, 1.0), text=f"{usage_p*100:.1f}% used")
 
         with r_col:
             with st.container(border=True):
@@ -132,20 +121,19 @@ try:
                     "Source": ["GCP", "DigitalOcean"],
                     "Cost": [gcp_usd, do_usd]
                 })
-                # สีพาสเทล: ม่วงอ่อน และ ฟ้าอ่อน
                 fig = px.pie(pie_df, values='Cost', names='Source', hole=0.6,
-                             color_discrete_sequence=["#a18cd1", "#84fab0"])
+                             color_discrete_sequence=["#8e2de2", "#00d2ff"])
                 fig.update_layout(showlegend=False, margin=dict(t=0, b=0, l=0, r=0))
                 st.plotly_chart(fig, use_container_width=True)
 
             with st.container(border=True):
-                st.subheader("🔮 Forecast")
-                day = datetime.now().day
+                st.subheader("🔮 Month-End Forecast")
+                day = now_th.day
                 projected = (total_thb / day) * 31
-                st.metric("Estimated Total", f"฿{projected:,.2f}")
+                st.metric("Estimated Total", f"฿{projected:,.2f}", delta=f"฿{projected - total_thb:,.2f} left")
 
-        # --- 6. Logs ---
-        with st.expander("📄 View History"):
+        # --- 6. Table ---
+        with st.expander("📄 Full History"):
             st.dataframe(df.sort_index(ascending=False), use_container_width=True)
 
 except Exception as e:
