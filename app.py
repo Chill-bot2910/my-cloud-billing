@@ -29,8 +29,11 @@ try:
 
         # --- 3. ส่วนทำนายยอดสิ้นเดือน (Forecast) ---
         day_of_month = datetime.now().day
-        days_in_month = 31 # ประมาณการ
-        projected_usd = (total_thb / day_of_month) * days_in_month / ex_rate
+        days_in_month = 31 # ประมาณการ (หรือใช้ calendar.monthrange ก็ได้)
+        
+        # คำนวณยอดเฉลี่ยต่อวัน แล้วคูณจำนวนวันทั้งเดือน
+        daily_average_thb = total_thb / day_of_month
+        projected_thb = daily_average_thb * days_in_month
 
         # --- 4. แสดง Metrics ---
         col1, col2, col3, col4 = st.columns(4)
