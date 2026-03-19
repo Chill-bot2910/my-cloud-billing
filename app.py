@@ -4,27 +4,52 @@ from datetime import datetime
 import plotly.express as px
 
 # 1. ตั้งค่าหน้าเว็บ
-st.set_page_config(page_title="Cloud Billing Pro", layout="wide", page_icon="📊")
+st.set_page_config(page_title="Cloud Billing Cyberpunk", layout="wide", page_icon="⚡")
 
-# --- 🎨 Custom CSS สำหรับพื้นหลังและสไตล์ ---
+# --- 🌌 Cyberpunk Custom CSS ---
 st.markdown("""
     <style>
-    /* เปลี่ยนสีพื้นหลังของทั้งหน้า */
+    /* พื้นหลังสีน้ำเงินเข้ม-ดำ */
     .stApp {
-        background-color: #f8f9fa;
+        background-color: #0d1117;
+        color: #e6edf3;
     }
-    /* ปรับแต่งกล่อง Container ให้ดูนูนและสะอาด */
+    /* ปรับแต่งกล่อง Metric ให้มีขอบนีออน */
     div[data-testid="stMetric"] {
-        background-color: #ffffff;
-        border: 1px solid #e9ecef;
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        background-color: #161b22;
+        border: 1px solid #30363d;
+        border-left: 5px solid #00d4ff; /* เส้นสีฟ้านีออนด้านซ้าย */
+        padding: 20px;
+        border-radius: 8px;
+        transition: 0.3s;
     }
-    /* หัวข้อใหญ่ */
+    div[data-testid="stMetric"]:hover {
+        border-color: #00d4ff;
+        box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+    }
+    /* หัวข้อ Title สีฟ้านีออน */
     h1 {
-        color: #1c2e4a;
-        font-weight: 800;
+        color: #00d4ff;
+        font-family: 'Courier New', Courier, monospace;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 2px 2px 10px rgba(0, 212, 255, 0.5);
+    }
+    /* ปรับแต่งปุ่ม Refresh */
+    .stButton>button {
+        background-color: #1f6feb;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+    .stButton>button:hover {
+        background-color: #388bfd;
+        box-shadow: 0 0 20px rgba(31, 111, 235, 0.6);
+    }
+    /* สไตล์สำหรับกล่อง Container */
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        border-color: #30363d !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -32,16 +57,16 @@ st.markdown("""
 # --- Header ---
 col_title, col_btn = st.columns([4, 1])
 with col_title:
-    st.title("📊 Cloud Billing Command Center")
-    st.markdown(f"🗓️ **Snapshot:** `{datetime.now().strftime('%d/%m/%Y %H:%M')}`")
+    st.title("⚡ CLOUD BILLING COMMAND")
+    st.markdown(f"📡 **SYSTEM STATUS:** `STABLE` | 🗓️ **SNAPSHOT:** `{datetime.now().strftime('%d/%m/%Y %H:%M')}`")
 
 with col_btn:
     st.write("##")
-    if st.button("🔄 Sync Data", use_container_width=True):
+    if st.button("🔄 RE-SYNC SYSTEM", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
 
-st.markdown("---")
+st.markdown("<hr style='border-color: #30363d;'>", unsafe_allow_html=True)
 
 # 2. ดึงข้อมูล
 sheet_id = "11_nlGeuVRskPtH8K3QZ2BtEOHAon5w7jl2w37GupWtI"
@@ -61,53 +86,63 @@ try:
         val_tokens = latest.get('Gemini Tokens', 0)
         display_tokens = 0 if pd.isna(val_tokens) else val_tokens
 
-        # --- 3. Metrics Section (3 กล่องหลักที่ดูสะอาดตา) ---
+        # --- 3. Neon Metrics Section ---
         m1, m2, m3 = st.columns(3)
-        m1.metric("💰 Total Spending", f"฿{total_thb:,.2f}")
-        m2.metric("🤖 Gemini Usage", f"${gcp_usd:,.2f}")
-        m3.metric("💧 Server (DO)", f"${do_usd:,.2f}")
+        m1.metric("💳 TOTAL SPENT", f"฿{total_thb:,.2f}")
+        m2.metric("🧠 GEMINI UNIT", f"${gcp_usd:,.2f}")
+        m3.metric("🛰️ DO CLUSTER", f"${do_usd:,.2f}")
 
         st.write("##")
 
-        # --- 4. Main Dashboard Area ---
+        # --- 4. Main Grid ---
         left_col, right_col = st.columns([2, 1])
 
         with left_col:
-            # ใช้ st.expander หรือ Container ในการจัดกลุ่ม
             with st.container(border=True):
-                st.subheader("📈 Consumption Trend (THB)")
+                st.subheader("📊 Consumption Waveform")
                 chart_df = df.copy().set_index('Date')
-                st.area_chart(chart_df['Total Cost (THB)'], color="#4A90E2")
+                # ใช้กราฟพื้นที่สีฟ้าเข้ม
+                st.area_chart(chart_df['Total Cost (THB)'], color="#1f6feb")
                 
                 st.divider()
                 
-                st.subheader("🏁 Budget Progress ($15.00)")
+                st.subheader("🔋 Budget Power Grid ($15.00)")
                 usage_percent = (total_usd_val / 15.0)
-                bar_color = "blue" if usage_percent < 0.8 else "orange" if usage_percent < 1.0 else "red"
-                st.progress(min(usage_percent, 1.0), text=f"Used: {usage_percent*100:.1f}%")
+                # เลือกสีตามความวิกฤต
+                bar_text = f"LOAD: {usage_percent*100:.1f}%"
+                st.progress(min(usage_percent, 1.0), text=bar_text)
 
         with right_col:
             with st.container(border=True):
-                st.subheader("🍰 Cost Breakdown")
+                st.subheader("💠 Resource Core")
                 pie_df = pd.DataFrame({
                     "Source": ["Gemini (GCP)", "DigitalOcean"],
                     "Cost": [gcp_usd, do_usd]
                 })
-                fig = px.pie(pie_df, values='Cost', names='Source', hole=0.6,
-                             color_discrete_map={"Gemini (GCP)": "#FF9900", "DigitalOcean": "#008bcf"})
-                fig.update_layout(showlegend=False, margin=dict(t=0, b=0, l=0, r=0))
+                # สีส้มนีออน และ ฟ้านีออน
+                fig = px.pie(pie_df, values='Cost', names='Source', hole=0.7,
+                             color_discrete_map={"Gemini (GCP)": "#FF9F00", "DigitalOcean": "#00D4FF"})
+                
+                # ตกแต่งกราฟให้เข้ากับ Dark Mode
+                fig.update_layout(
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    font_color="#e6edf3",
+                    showlegend=False,
+                    margin=dict(t=10, b=10, l=10, r=10)
+                )
                 st.plotly_chart(fig, use_container_width=True)
 
             with st.container(border=True):
-                st.subheader("🔮 Smart Forecast")
+                st.subheader("📡 Neural Forecast")
                 day_of_month = datetime.now().day
                 projected_thb = (total_thb / day_of_month) * 31
-                st.metric("Estimated End of Month", f"฿{projected_thb:,.2f}", 
-                          delta=f"{(projected_thb - total_thb):,.2f} more")
+                st.metric("Estimated Monthly End", f"฿{projected_thb:,.2f}", 
+                          delta=f"{(projected_thb - total_thb):,.2f} THB to go")
 
-        # --- 5. Data Table ---
-        with st.expander("📄 View Full Billing History"):
+        # --- 5. Raw Data Stream ---
+        with st.expander("💾 Access Database Log"):
             st.dataframe(df.sort_index(ascending=False), use_container_width=True)
 
 except Exception as e:
-    st.error(f"❌ Error loading data: {e}")
+    st.error(f"🚫 SYSTEM ERROR: {e}")
