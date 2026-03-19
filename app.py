@@ -6,43 +6,48 @@ import plotly.express as px
 # 1. ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Cloud Billing | Soft Minimal", layout="wide", page_icon="🌸")
 
-# --- 🎨 Ultra Soft Minimal CSS (Fixed Overlap) ---
+# --- 🎨 Ultra Soft Minimal CSS (No Icon Overlap) ---
 st.markdown("""
 <style>
 /* ดึงฟอนต์ Itim */
 @import url('https://fonts.googleapis.com/css2?family=Itim&display=swap');
 
-/* ใช้ฟอนต์ Itim ทุกจุด และลบสไตล์ที่ทำให้ตัวหนังสือทับกัน */
-html, body, [class*="css"], .stMarkdown, p, div, h1, h2, h3, h4, span, label, .stMetricValue {
+/* ใช้ฟอนต์ Itim เฉพาะส่วนที่เป็นตัวหนังสือจริงๆ (ยกเว้นไอคอน) */
+html, body, .stMarkdown, p, div:not([data-testid="stIcon"]), h1, h2, h3, h4, span:not(.css-10trblm), label, .stMetricValue {
     font-family: 'Itim', cursive !important;
+}
+
+/* ป้องกันไม่ให้ Itim ไปทับ Icon ของ Streamlit */
+[data-testid="stExpander"] svg, [data-icon] {
+    font-family: inherit !important;
 }
 
 .stApp {
     background-color: #fcfcfd;
 }
 
-/* กล่อง Metric - เงาจางๆ และ Hover แบบนุ่มมาก */
+/* กล่อง Metric - นุ่มนวลขึ้น */
 div[data-testid="stMetric"] {
     background: white;
     border: 1px solid #f0f2f6;
     padding: 20px;
     border-radius: 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-    transition: all 0.5s ease; /* ช้าลงเพื่อความนุ่ม */
+    transition: all 0.5s ease;
 }
 
 div[data-testid="stMetric"]:hover {
-    transform: translateY(-3px); /* ลอยขึ้นเบาๆ */
+    transform: translateY(-3px);
     box-shadow: 0 10px 20px rgba(0,0,0,0.04);
 }
 
-/* ปรับสีตัวเลขให้ดูซอฟต์ */
+/* ตัวเลข Metric */
 div[data-testid="stMetricValue"] > div {
     color: #4A5568 !important;
     font-size: 1.8rem !important;
 }
 
-/* หัวข้อ Title ไล่สีละมุน */
+/* หัวข้อ Title ไล่สีพาสเทล */
 h1 {
     background: linear-gradient(90deg, #a18cd1, #fbc2eb);
     -webkit-background-clip: text;
@@ -51,10 +56,17 @@ h1 {
     font-weight: 700;
 }
 
-/* แก้ไขปัญหาตัวหนังสือทับกันใน Expander โดยการรีเซ็ตสไตล์ */
+/* จัดการส่วน Expander ให้คลีน */
 .streamlit-expanderHeader {
-    font-size: 1.1rem !important;
-    color: #4A5568 !important;
+    background-color: transparent !important;
+    border-radius: 10px !important;
+    border: 1px solid transparent !important;
+}
+
+/* ปรับระยะปุ่ม Sync */
+.stButton>button {
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
 }
 </style>
 """, unsafe_allow_html=True)
