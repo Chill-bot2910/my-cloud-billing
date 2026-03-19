@@ -4,15 +4,15 @@ from datetime import datetime, timedelta
 import plotly.express as px
 
 # 1. ตั้งค่าหน้าเว็บ
-st.set_page_config(page_title="Cloud Billing | Soft Itim", layout="wide", page_icon="🌸")
+st.set_page_config(page_title="Cloud Billing | Soft Minimal", layout="wide", page_icon="🌸")
 
-# --- 🎨 Smooth Minimal Itim CSS ---
+# --- 🎨 Ultra Soft Minimal CSS (Fixed Overlap) ---
 st.markdown("""
 <style>
 /* ดึงฟอนต์ Itim */
 @import url('https://fonts.googleapis.com/css2?family=Itim&display=swap');
 
-/* บังคับใช้ฟอนต์ Itim ทุกจุด */
+/* ใช้ฟอนต์ Itim ทุกจุด และลบสไตล์ที่ทำให้ตัวหนังสือทับกัน */
 html, body, [class*="css"], .stMarkdown, p, div, h1, h2, h3, h4, span, label, .stMetricValue {
     font-family: 'Itim', cursive !important;
 }
@@ -21,49 +21,40 @@ html, body, [class*="css"], .stMarkdown, p, div, h1, h2, h3, h4, span, label, .s
     background-color: #fcfcfd;
 }
 
-/* กล่อง Metric - ปรับเงาให้นวลและ Hover เบาๆ */
+/* กล่อง Metric - เงาจางๆ และ Hover แบบนุ่มมาก */
 div[data-testid="stMetric"] {
     background: white;
     border: 1px solid #f0f2f6;
     padding: 20px;
     border-radius: 20px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.02);
-    transition: all 0.4s ease; /* ปรับให้สมูทขึ้น */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    transition: all 0.5s ease; /* ช้าลงเพื่อความนุ่ม */
 }
 
-/* Hover แบบเบาๆ ไม่กระโชกโฮกฮาก */
 div[data-testid="stMetric"]:hover {
-    transform: translateY(-3px); /* ลอยขึ้นแค่นิดเดียว */
-    box-shadow: 0 8px 15px rgba(161, 140, 209, 0.1);
-    border-color: #fbc2eb;
+    transform: translateY(-3px); /* ลอยขึ้นเบาๆ */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.04);
 }
 
-/* ตัวเลข Metric */
+/* ปรับสีตัวเลขให้ดูซอฟต์ */
 div[data-testid="stMetricValue"] > div {
-    color: #5a67d8 !important;
+    color: #4A5568 !important;
     font-size: 1.8rem !important;
 }
 
-/* หัวข้อ Title */
+/* หัวข้อ Title ไล่สีละมุน */
 h1 {
-    background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+    background: linear-gradient(90deg, #a18cd1, #fbc2eb);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     font-size: 2.5rem !important;
+    font-weight: 700;
 }
 
-/* แก้บั๊กตัวหนังสือทับกันใน Expander */
-.stExpander {
-    border: none !important;
-    box-shadow: none !important;
-    background-color: transparent !important;
-}
-
-/* ปรับแต่งปุ่ม Sync ให้ดูเรียบง่าย */
-.stButton>button {
-    border-radius: 10px;
-    border: 1px solid #e2e8f0;
-    font-size: 0.9rem;
+/* แก้ไขปัญหาตัวหนังสือทับกันใน Expander โดยการรีเซ็ตสไตล์ */
+.streamlit-expanderHeader {
+    font-size: 1.1rem !important;
+    color: #4A5568 !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -74,10 +65,10 @@ now_th = datetime.utcnow() + timedelta(hours=7)
 col_t, col_b = st.columns([4, 1])
 with col_t:
     st.title("Cloud Billing Dashboard")
-    st.markdown(f"🌸 **สถานะระบบ:** ทำงานปกติ  |  🕒 **อัปเดต:** {now_th.strftime('%H:%M:%S')} น.")
+    st.markdown(f"🌸 **สถานะ:** ปกติ  |  🕒 **อัปเดต:** {now_th.strftime('%H:%M:%S')} น.")
 with col_b:
     st.write("##")
-    if st.button("🔄 ดึงข้อมูลใหม่", use_container_width=True):
+    if st.button("🔄 Sync Data", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
 
@@ -103,63 +94,52 @@ try:
 
         # --- 4. Metric Grid ---
         m1, m2, m3, m4, m5 = st.columns(5)
-        m1.metric("💰 ยอดรวมทั้งหมด", f"฿{total_thb:,.2f}")
-        m2.metric("🧠 Gemini (GCP)", f"${gcp_usd:,.2f}")
-        m3.metric("💧 DigitalOcean", f"${do_usd:,.2f}")
-        m4.metric("📊 ใช้โทเคน", f"{display_tokens:,.0f}")
-        m5.metric("💹 เรทเงินบาท", f"{ex_rate:.2f}")
+        m1.metric("💰 ยอดรวม", f"฿{total_thb:,.2f}")
+        m2.metric("🧠 Gemini", f"${gcp_usd:,.2f}")
+        m3.metric("💧 Server", f"${do_usd:,.2f}")
+        m4.metric("📊 Tokens", f"{display_tokens:,.0f}")
+        m5.metric("💹 Rate", f"{ex_rate:.2f}")
 
         st.write("##")
 
-        # --- 5. Main Area ---
+        # --- 5. Content ---
         l_col, r_col = st.columns([2, 1])
 
         with l_col:
             with st.container(border=True):
-                st.subheader("📈 แนวโน้มการใช้งาน")
+                st.subheader("📈 แนวโน้มค่าใช้จ่าย")
                 chart_df = df.copy().set_index('Date')
-                st.area_chart(chart_df['Total Cost (THB)'], color="#fbc2eb")
+                st.area_chart(chart_df['Total Cost (THB)'], color="#a18cd1")
                 
                 st.divider()
-                st.subheader("🏁 เป้าหมายงบประมาณ ($15.00)")
+                st.subheader("🏁 งบประมาณ ($15.00)")
                 usage_p = (total_usd_val / 15.0)
                 
-                # --- Dynamic Progress Bar Color Logic ---
-                # เปลี่ยนสีตาม % การใช้งาน
-                if usage_p < 0.5:
-                    bar_color = "#84fab0" # เขียวพาสเทล
-                elif usage_p < 0.8:
-                    bar_color = "#f6d365" # เหลืองพาสเทล
-                else:
-                    bar_color = "#fbc2eb" # ชมพูพาสเทล (Alert)
+                # --- Dynamic Progress Bar Color ---
+                bar_color = "#84fab0" if usage_p < 0.5 else "#f6d365" if usage_p < 0.8 else "#fbc2eb"
+                st.markdown(f"""<style>.stProgress > div > div > div > div {{ background-color: {bar_color} !important; }}</style>""", unsafe_allow_html=True)
                 
-                st.markdown(f"""
-                    <style>
-                        .stProgress > div > div > div > div {{
-                            background-color: {bar_color} !important;
-                        }}
-                    </style>""", unsafe_allow_html=True)
-                
-                st.progress(min(usage_p, 1.0), text=f"ใช้วงเงินไปแล้ว: {usage_p*100:.1f}%")
+                st.progress(min(usage_p, 1.0), text=f"ใช้ไปแล้ว: {usage_p*100:.1f}%")
 
         with r_col:
             with st.container(border=True):
-                st.subheader("🍰 สัดส่วนค่ายใช้จ่าย")
-                pie_df = pd.DataFrame({"ค่าย": ["GCP", "DO"], "ค่า": [gcp_usd, do_usd]})
-                fig = px.pie(pie_df, values='ค่า', names='ค่าย', hole=0.6,
+                st.subheader("🍰 สัดส่วนค่าย")
+                pie_df = pd.DataFrame({"Source": ["GCP", "DO"], "Cost": [gcp_usd, do_usd]})
+                fig = px.pie(pie_df, values='Cost', names='Source', hole=0.6,
                              color_discrete_sequence=["#a18cd1", "#fbc2eb"])
                 fig.update_layout(showlegend=False, margin=dict(t=10, b=10, l=10, r=10), font=dict(family="Itim"))
                 st.plotly_chart(fig, use_container_width=True)
 
             with st.container(border=True):
-                st.subheader("🔮 ทำนายสิ้นเดือน")
+                st.subheader("🔮 ทำนายยอด")
                 day = now_th.day
                 projected = (total_thb / day) * 31
-                st.metric("คาดการณ์รวม", f"฿{projected:,.2f}", delta=f"฿{projected - total_thb:,.2f}")
+                st.metric("สิ้นเดือนคาดว่า", f"฿{projected:,.2f}")
 
-        # --- 6. Table (Fix text overlapping) ---
+        # --- 6. Table (แก้ไขชื่อเพื่อป้องกันตัวหนังสือทับ Icon) ---
         st.write("##")
-        with st.expander("📄 ดูประวัติย้อนหลัง"):
+        with st.expander("📄 ประวัติย้อนหลัง"):
+            # ตกแต่งหัวข้อตารางให้สั้นลงเพื่อความสะอาด
             st.dataframe(df.sort_index(ascending=False), use_container_width=True)
 
 except Exception as e:
