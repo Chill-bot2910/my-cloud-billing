@@ -41,25 +41,36 @@ try:
         st.markdown("---")
         st.success(f"💡 **Forecast:** สิ้นเดือนนี้คาดว่า Choo จะมียอดรวมประมาณ **฿{projected_thb:,.2f}** (ประมาณ **${projected_usd_total:,.2f}**)")
 
-            except Exception as e:
-        st.error(f"❌ Error: {e}")
+except Exception as e:
+    st.error(f"❌ Error: {e}")
 
-        # --- 4. แสดง Metrics ---
+        # 4. แสดง Metrics (ตรวจสอบว่าย่อหน้าตรงกับบรรทัดด้านบน)
         col1, col2, col3, col4 = st.columns(4)
-        col1.metric("💰 ยอดรวม (บาท)", f"฿{total_thb:,.2f}")
-        col2.metric("🤖 Gemini Cost", f"${gcp_usd:,.2f}")
-        col3.metric("📊 Token Usage", f"{tokens:,.0f}" if not pd.isna(tokens) else "0")
-        col4.metric("💹 Rate (THB/USD)", f"{ex_rate:.2f}")
+        
+        with col1:
+            st.metric("💰 ยอดรวม (บาท)", f"฿{total_thb:,.2f}")
+        
+        with col2:
+            st.metric("🤖 Gemini Cost", f"${gcp_usd:,.2f}")
+            
+        with col3:
+            # จัดการค่า nan สำหรับ Token
+            display_tokens = 0 if pd.isna(tokens) else tokens
+            st.metric("📊 Token Usage", f"{display_tokens:,.0f}")
+
+        with col4:
+            st.metric("💹 Rate", f"{ex_rate:.2f}")
 
         st.markdown("---")
 
-        # --- 5. กราฟวงกลมแยกค่าย ---
+        # 5. กราฟและพยากรณ์
         left_col, right_col = st.columns([2, 1])
         
         with left_col:
             st.subheader("📈 แนวโน้มค่าใช้จ่ายรายวัน (THB)")
-            chart_df = df.copy().set_index('Date')
-            st.area_chart(chart_df['Total Cost (THB)'])
+            if 'Date' in df.columns:
+                chart_df = df.copy().set_index('Date')
+                st.area_chart(chart_df['Total Cost (THB)'])
 
         with right_col:
             st.subheader("🍰 Expense Distribution")
@@ -67,12 +78,17 @@ try:
                 "Source": ["Google (Gemini)", "DigitalOcean"],
                 "Cost": [gcp_usd, do_usd]
             })
-            fig = px.pie(pie_df, values='Cost', names='Source', hole=0.4, 
+            fig = px.pie(pie_df, values='Cost', names='Source', hole=0.4,
                          color_discrete_sequence=['#4285F4', '#008bcf'])
             st.plotly_chart(fig, use_container_width=True)
 
-        # --- 6. Forecast Section ---
-        st.success(f"💡 **Forecast:** สิ้นเดือนนี้คาดว่าคุณจะมียอดรวมประมาณ **${ Davison_usd:,.2f}** (ประมาณ **฿{projected_usd * ex_rate:,.2f}**)")
+        # 6. Forecast
+        day_of_month = datetime.now().day
+        days_in_month = 31
+        projected_thb = (total_thb / day_of_month) * days_in_month
+        
+        st.markdown("---")
+        st.success(f"💡 **Forecast:** สิ้นเดือนนี้คาดว่า Choo จะมียอดรวมประมาณ **฿{projected_thb:,.2f}** (ประมาณ **${projected_thb / ex_rate:,.2f}**)")
 
-        except Exception as e:
-        st.error(f"❌ Error: {e}")
+except Exception as e:
+    st.error(f"❌ Error: {e}")
