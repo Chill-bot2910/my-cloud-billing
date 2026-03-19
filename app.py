@@ -17,7 +17,7 @@ with col_btn:
     if st.button("🔄 Refresh Data"):
         st.cache_data.clear() 
         st.rerun()
-# st.title("📊 My Cloud Billing Dashboard") 
+st.title("📊 My Cloud Billing Dashboard") 
 st.markdown(f"_Last Updated: {datetime.now().strftime('%d/%m/%Y %H:%M')}_")
 st.markdown("---")
 
