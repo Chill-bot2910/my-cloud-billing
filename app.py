@@ -4,22 +4,17 @@ from datetime import datetime, timedelta
 import plotly.express as px
 
 # 1. ตั้งค่าหน้าเว็บ
-st.set_page_config(page_title="Cloud Billing | Soft Minimal", layout="wide", page_icon="🌸")
+st.set_page_config(page_title="Cloud Billing | Soft & Clean", layout="wide", page_icon="🌸")
 
-# --- 🎨 Ultra Soft Minimal CSS (No Icon Overlap) ---
+# --- 🎨 Soft & Clean CSS (แก้ปัญหาการซ้อนทับอย่างเด็ดขาด) ---
 st.markdown("""
 <style>
 /* ดึงฟอนต์ Itim */
 @import url('https://fonts.googleapis.com/css2?family=Itim&display=swap');
 
-/* ใช้ฟอนต์ Itim เฉพาะส่วนที่เป็นตัวหนังสือจริงๆ (ยกเว้นไอคอน) */
-html, body, .stMarkdown, p, div:not([data-testid="stIcon"]), h1, h2, h3, h4, span:not(.css-10trblm), label, .stMetricValue {
+/* ใช้ฟอนต์ Itim กับทุกที่ยกเว้น Icon */
+html, body, [class*="css"], .stMarkdown, p, div:not([data-testid="stIcon"]), h1, h2, h3, h4, span, label, .stMetricValue {
     font-family: 'Itim', cursive !important;
-}
-
-/* ป้องกันไม่ให้ Itim ไปทับ Icon ของ Streamlit */
-[data-testid="stExpander"] svg, [data-icon] {
-    font-family: inherit !important;
 }
 
 .stApp {
@@ -56,17 +51,9 @@ h1 {
     font-weight: 700;
 }
 
-/* จัดการส่วน Expander ให้คลีน */
-.streamlit-expanderHeader {
-    background-color: transparent !important;
-    border-radius: 10px !important;
-    border: 1px solid transparent !important;
-}
-
-/* ปรับระยะปุ่ม Sync */
-.stButton>button {
+/* ปรับแต่ง Progress Bar */
+.stProgress > div > div > div > div {
     border-radius: 10px;
-    border: 1px solid #e2e8f0;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -114,8 +101,8 @@ try:
 
         st.write("##")
 
-        # --- 5. Content ---
-        l_col, r_col = st.columns([2, 1])
+        # --- 5. Main Content Area ---
+        l_col, m_col, r_col = st.columns([1.8, 0.7, 1])
 
         with l_col:
             with st.container(border=True):
@@ -126,12 +113,22 @@ try:
                 st.divider()
                 st.subheader("🏁 งบประมาณ ($15.00)")
                 usage_p = (total_usd_val / 15.0)
-                
-                # --- Dynamic Progress Bar Color ---
                 bar_color = "#84fab0" if usage_p < 0.5 else "#f6d365" if usage_p < 0.8 else "#fbc2eb"
                 st.markdown(f"""<style>.stProgress > div > div > div > div {{ background-color: {bar_color} !important; }}</style>""", unsafe_allow_html=True)
-                
                 st.progress(min(usage_p, 1.0), text=f"ใช้ไปแล้ว: {usage_p*100:.1f}%")
+
+        # --- ส่วนที่เพิ่ม: แถบสรุปยอดรวมรายเดือน ---
+        with m_col:
+            with st.container(border=True):
+                st.subheader("🗓️ สรุปรายเดือน")
+                st.metric("ยอดสะสม (THB)", f"฿{total_thb:,.2f}")
+                st.metric("ยอดสะสม (USD)", f"${total_usd_val:,.2f}")
+                st.write("---")
+                # คำนวณค่าเฉลี่ยต่อวัน
+                day_now = now_th.day
+                avg_per_day = total_thb / day_now
+                st.write(f"เฉลี่ยวันละ: **฿{avg_per_day:,.2f}**")
+                st.write(f"ยอดเดือนนี้ (Proj): **฿{avg_per_day * 31:,.2f}**")
 
         with r_col:
             with st.container(border=True):
@@ -144,15 +141,14 @@ try:
 
             with st.container(border=True):
                 st.subheader("🔮 ทำนายยอด")
-                day = now_th.day
-                projected = (total_thb / day) * 31
-                st.metric("สิ้นเดือนคาดว่า", f"฿{projected:,.2f}")
+                projected = (total_thb / now_th.day) * 31
+                st.metric("สิ้นเดือนคาดว่า", f"฿{projected:,.2f}", delta=f"฿{projected - total_thb:,.2f}")
 
-        # --- 6. Table (แก้ไขชื่อเพื่อป้องกันตัวหนังสือทับ Icon) ---
+        # --- 6. Table (เปลี่ยนจาก Expander เป็น Header ปกติเพื่อแก้ปัญหาข้อความทับกัน) ---
         st.write("##")
-        with st.expander("📄 ประวัติย้อนหลัง"):
-            # ตกแต่งหัวข้อตารางให้สั้นลงเพื่อความสะอาด
-            st.dataframe(df.sort_index(ascending=False), use_container_width=True)
+        st.subheader("📄 ประวัติการใช้งาน")
+        with st.container(border=True):
+            st.dataframe(df.sort_index(ascending=False), use_container_width=True, height=300)
 
 except Exception as e:
     st.error(f"Error: {e}")
