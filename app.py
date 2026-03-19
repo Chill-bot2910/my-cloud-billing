@@ -9,7 +9,7 @@ st.title("📊 My Cloud Billing Dashboard")
 st.markdown(f"_Last Updated: {datetime.now().strftime('%d/%m/%Y %H:%M')}_")
 st.markdown("---")
 
-# 2. ดึงข้อมูล
+# 2. ดึงข้อมูลจาก Google Sheets
 sheet_id = "11_nlGeuVRskPtH8K3QZ2BtEOHAon5w7jl2w37GupWtI"
 sheet_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
 
@@ -17,59 +17,43 @@ try:
     df = pd.read_csv(sheet_url)
     df.columns = df.columns.str.strip()
 
-    if not df.empty:
+    if df.empty:
+        st.warning("⚠️ ยังไม่มีข้อมูลในระบบ")
+    else:
+        # 3. เตรียมข้อมูลแถวล่าสุด
         latest = df.iloc[-1]
         
-        # ดึงค่าตัวเลข (ถ้าไม่มีให้เป็น 0)
+        # ดึงค่าตัวเลข (ใส่ค่า 0 กันเหนียวถ้าหาคอลัมน์ไม่เจอ)
         total_thb = float(latest.get('Total Cost (THB)', 0))
         ex_rate = float(latest.get('Exchange Rate', 32.72))
         gcp_usd = float(latest.get('gcp_usd', 0))
         do_usd = float(latest.get('do_usd', 5.21))
-        tokens = latest.get('Gemini Tokens', 0)
-
-       # --- 3. ส่วนทำนายยอดสิ้นเดือน (Forecast) ---
-        day_of_month = datetime.now().day
-        days_in_month = 31 # ประมาณการจำนวนวันในเดือนนี้
         
-        # สูตร: (ยอดปัจจุบัน / วันที่ผ่านมาแล้ว) * จำนวนวันทั้งเดือน
-        projected_thb = (total_thb / day_of_month) * days_in_month
-        projected_usd_total = projected_thb / ex_rate
+        # จัดการค่า nan สำหรับ Token
+        val_tokens = latest.get('Gemini Tokens', 0)
+        display_tokens = 0 if pd.isna(val_tokens) else val_tokens
 
-        # ... (ส่วน Metrics และ กราฟ อื่นๆ ของคุณ) ...
-
-        # --- 6. Forecast Section (จุดที่แก้ชื่อตัวแปรให้ถูกต้อง) ---
-        st.markdown("---")
-        st.success(f"💡 **Forecast:** สิ้นเดือนนี้คาดว่า Choo จะมียอดรวมประมาณ **฿{projected_thb:,.2f}** (ประมาณ **${projected_usd_total:,.2f}**)")
-
-except Exception as e:
-    st.error(f"❌ Error: {e}")
-
-        # 4. แสดง Metrics (ตรวจสอบว่าย่อหน้าตรงกับบรรทัดด้านบน)
+        # 4. แสดงผล 4 กล่องไฮไลท์ (Metrics)
         col1, col2, col3, col4 = st.columns(4)
-        
         with col1:
             st.metric("💰 ยอดรวม (บาท)", f"฿{total_thb:,.2f}")
-        
         with col2:
             st.metric("🤖 Gemini Cost", f"${gcp_usd:,.2f}")
-            
         with col3:
-            # จัดการค่า nan สำหรับ Token
-            display_tokens = 0 if pd.isna(tokens) else tokens
             st.metric("📊 Token Usage", f"{display_tokens:,.0f}")
-
         with col4:
             st.metric("💹 Rate", f"{ex_rate:.2f}")
 
         st.markdown("---")
 
-        # 5. กราฟและพยากรณ์
+        # 5. กราฟและสัดส่วน
         left_col, right_col = st.columns([2, 1])
         
         with left_col:
             st.subheader("📈 แนวโน้มค่าใช้จ่ายรายวัน (THB)")
             if 'Date' in df.columns:
-                chart_df = df.copy().set_index('Date')
+                chart_df = df.copy()
+                chart_df = chart_df.set_index('Date')
                 st.area_chart(chart_df['Total Cost (THB)'])
 
         with right_col:
@@ -82,13 +66,17 @@ except Exception as e:
                          color_discrete_sequence=['#4285F4', '#008bcf'])
             st.plotly_chart(fig, use_container_width=True)
 
-        # 6. Forecast
+        # 6. Forecast (ทำนายยอดสิ้นเดือน)
         day_of_month = datetime.now().day
         days_in_month = 31
         projected_thb = (total_thb / day_of_month) * days_in_month
         
         st.markdown("---")
-        st.success(f"💡 **Forecast:** สิ้นเดือนนี้คาดว่า Choo จะมียอดรวมประมาณ **฿{projected_thb:,.2f}** (ประมาณ **${projected_thb / ex_rate:,.2f}**)")
+        st.success(f"💡 **Forecast:** จากการใช้งานเฉลี่ย คาดว่าสิ้นเดือนนี้ Choo จะมียอดรวมประมาณ **฿{projected_thb:,.2f}** (ประมาณ **${projected_thb / ex_rate:,.2f}**)")
+
+        # 7. ตารางข้อมูลดิบ
+        with st.expander("🔍 ดูประวัติการใช้งานทั้งหมด"):
+            st.dataframe(df.sort_index(ascending=False), use_container_width=True)
 
 except Exception as e:
-    st.error(f"❌ Error: {e}")
+    st.error(f"❌ เกิดข้อผิดพลาด: {e}")
