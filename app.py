@@ -4,15 +4,15 @@ from datetime import datetime, timedelta
 import plotly.express as px
 
 # 1. ตั้งค่าหน้าเว็บ
-st.set_page_config(page_title="Cloud Billing | Color Palette", layout="wide", page_icon="🌸")
+st.set_page_config(page_title="Cloud Billing | Vibrant Itim", layout="wide", page_icon="🌸")
 
-# --- 🎨 Colorful & Clean Itim CSS ---
+# --- 🎨 Vibrant Itim Custom CSS ---
 st.markdown("""
 <style>
 /* ดึงฟอนต์ Itim */
 @import url('https://fonts.googleapis.com/css2?family=Itim&display=swap');
 
-/* บังคับใช้ฟอนต์ Itim ทุกจุด (ยกเว้นไอคอนระบบ) */
+/* ใช้ฟอนต์ Itim ทุกจุด ยกเว้น Icon ของระบบ */
 html, body, [class*="css"], .stMarkdown, p, div:not([data-testid="stIcon"]), h1, h2, h3, h4, span, label {
     font-family: 'Itim', cursive !important;
 }
@@ -30,15 +30,36 @@ div[data-testid="stMetric"] {
     box-shadow: 0 4px 10px rgba(0,0,0,0.02);
     transition: all 0.4s ease;
 }
+
 div[data-testid="stMetric"]:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 15px rgba(0,0,0,0.05);
 }
 
-/* --- 🌈 ปรับสีตัวเลขให้สดใสขึ้นแยกตามกล่อง --- */
-/* เราจะใช้ CSS เลือกกล่องตามลำดับ */
+/* --- 🌈 ปรับสีตัวเลข 5 กล่องให้สดใสแยกตามประเภท --- */
+/* กล่องที่ 1: ยอดรวม (สีม่วงเข้มพาสเทล) */
+div[data-testid="stMetric"]:nth-child(1) div[data-testid="stMetricValue"] > div {
+    color: #8e44ad !important;
+}
+/* กล่องที่ 2: Gemini (สีชมพูบานเย็นพาสเทล) */
+div[data-testid="stMetric"]:nth-child(2) div[data-testid="stMetricValue"] > div {
+    color: #e91e63 !important;
+}
+/* กล่องที่ 3: Server (สีฟ้าน้ำทะเล) */
+div[data-testid="stMetric"]:nth-child(3) div[data-testid="stMetricValue"] > div {
+    color: #00bcd4 !important;
+}
+/* กล่องที่ 4: Tokens (สีเขียวพาสเทลสดใส) */
+div[data-testid="stMetric"]:nth-child(4) div[data-testid="stMetricValue"] > div {
+    color: #27ae60 !important;
+}
+/* กล่องที่ 5: Rate (สีส้มทอง) */
+div[data-testid="stMetric"]:nth-child(5) div[data-testid="stMetricValue"] > div {
+    color: #f39c12 !important;
+}
+
 div[data-testid="stMetricValue"] > div {
-    font-size: 2rem !important;
+    font-size: 2.2rem !important;
     font-weight: 700 !important;
 }
 
@@ -49,11 +70,6 @@ h1 {
     -webkit-text-fill-color: transparent;
     font-size: 2.8rem !important;
 }
-
-/* ปรับแต่ง Progress Bar */
-.stProgress > div > div > div > div {
-    border-radius: 15px;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -63,10 +79,10 @@ now_th = datetime.utcnow() + timedelta(hours=7)
 col_t, col_b = st.columns([4, 1])
 with col_t:
     st.title("Cloud Billing Dashboard")
-    st.markdown(f"🌸 **สถานะ:** ปกติ  |  🕒 **อัปเดต:** {now_th.strftime('%H:%M:%S')} น.")
+    st.markdown(f"🌸 **สถานะ:** ออนไลน์  |  🕒 **อัปเดต:** {now_th.strftime('%H:%M:%S')} น.")
 with col_b:
     st.write("##")
-    if st.button("🔄 Sync Data", use_container_width=True):
+    if st.button("🔄 ดึงข้อมูลใหม่", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
 
@@ -90,29 +106,22 @@ try:
         val_tokens = latest.get('Gemini Tokens', 0)
         display_tokens = 0 if pd.isna(val_tokens) else val_tokens
 
-        # --- 4. Metric Grid (5 กล่องพร้อมสีสดใส) ---
+        # --- 4. Metric Grid (5 กล่อง - สีจะเปลี่ยนตาม CSS ด้านบน) ---
         m1, m2, m3, m4, m5 = st.columns(5)
-        
-        # ใช้ st.container ครอบเพื่อให้ใส่สีตัวเลขได้ง่ายขึ้นผ่าน markdown
-        with m1: 
-            st.metric("💰 ยอดรวม", f"฿{total_thb:,.2f}")
-        with m2: 
-            st.metric("🧠 Gemini", f"${gcp_usd:,.2f}")
-        with m3: 
-            st.metric("💧 Server", f"${do_usd:,.2f}")
-        with m4: 
-            st.metric("📊 Tokens", f"{display_tokens:,.0f}")
-        with m5: 
-            st.metric("💹 Rate", f"{ex_rate:.2f}")
+        m1.metric("💰 ยอดรวม", f"฿{total_thb:,.2f}")
+        m2.metric("🧠 Gemini", f"${gcp_usd:,.2f}")
+        m3.metric("💧 Server", f"${do_usd:,.2f}")
+        m4.metric("📊 Tokens", f"{display_tokens:,.0f}")
+        m5.metric("💹 Rate", f"{ex_rate:.2f}")
 
         st.write("##")
 
-        # --- 5. Main Area ---
+        # --- 5. Main Content Area ---
         l_col, m_col, r_col = st.columns([1.8, 0.7, 1])
 
         with l_col:
             with st.container(border=True):
-                st.subheader("📈 แนวโน้มค่าใช้จ่าย")
+                st.subheader("📈 แนวโน้มการใช้งาน")
                 chart_df = df.copy().set_index('Date')
                 st.area_chart(chart_df['Total Cost (THB)'], color="#6a11cb")
                 
@@ -121,26 +130,25 @@ try:
                 usage_p = (total_usd_val / 15.0)
                 bar_color = "#4ade80" if usage_p < 0.5 else "#facc15" if usage_p < 0.8 else "#f87171"
                 st.markdown(f"""<style>.stProgress > div > div > div > div {{ background-color: {bar_color} !important; }}</style>""", unsafe_allow_html=True)
-                st.progress(min(usage_p, 1.0), text=f"ใช้ไปแล้ว: {usage_p*100:.1f}%")
+                st.progress(min(usage_p, 1.0), text=f"ใช้วงเงินไปแล้ว: {usage_p*100:.1f}%")
 
-        # --- ส่วนสรุปรายเดือน (ปรับสีตัวเลขให้สดใส) ---
         with m_col:
             with st.container(border=True):
                 st.subheader("🗓️ สรุปรายเดือน")
-                st.markdown(f"ยอดสะสม (THB): <h2 style='color:#6a11cb; font-family:Itim;'>฿{total_thb:,.2f}</h2>", unsafe_allow_html=True)
-                st.markdown(f"ยอดสะสม (USD): <h3 style='color:#2575fc; font-family:Itim;'>${total_usd_val:,.2f}</h3>", unsafe_allow_html=True)
+                # ปรับสีสรุปรายเดือนให้สดใสตามกล่องด้านบน
+                st.markdown(f"ยอดรวม (THB): <h2 style='color:#8e44ad; font-family:Itim;'>฿{total_thb:,.2f}</h2>", unsafe_allow_html=True)
+                st.markdown(f"ยอดรวม (USD): <h3 style='color:#00bcd4; font-family:Itim;'>${total_usd_val:,.2f}</h3>", unsafe_allow_html=True)
                 st.write("---")
-                day_now = now_th.day
-                avg_per_day = total_thb / day_now
-                st.write(f"เฉลี่ยวันละ: **฿{avg_per_day:,.2f}**")
-                st.markdown(f"คาดการณ์สิ้นเดือน: <b style='color:#f87171;'>฿{avg_per_day * 31:,.2f}</b>", unsafe_allow_html=True)
+                avg_per_day = total_thb / now_th.day
+                st.write(f"เฉลี่ย/วัน: **฿{avg_per_day:,.2f}**")
+                st.markdown(f"คาดการณ์: <b style='color:#e91e63;'>฿{avg_per_day * 31:,.2f}</b>", unsafe_allow_html=True)
 
         with r_col:
             with st.container(border=True):
                 st.subheader("🍰 สัดส่วนค่าย")
                 pie_df = pd.DataFrame({"Source": ["GCP", "DO"], "Cost": [gcp_usd, do_usd]})
                 fig = px.pie(pie_df, values='Cost', names='Source', hole=0.6,
-                             color_discrete_sequence=["#6a11cb", "#2575fc"])
+                             color_discrete_sequence=["#8e44ad", "#00bcd4"])
                 fig.update_layout(showlegend=False, margin=dict(t=10, b=10, l=10, r=10), font=dict(family="Itim"))
                 st.plotly_chart(fig, use_container_width=True)
 
@@ -149,9 +157,9 @@ try:
                 projected = (total_thb / now_th.day) * 31
                 st.metric("สิ้นเดือนคาดว่า", f"฿{projected:,.2f}", delta=f"฿{projected - total_thb:,.2f}")
 
-        # --- 6. ประวัติการใช้งาน (แบบ Container ปกติ ไม่ทับแน่นอน) ---
+        # --- 6. Table (ลบ Expander ออกเพื่อแก้ปัญหาข้อความซ้อนกัน 100%) ---
         st.write("##")
-        st.subheader("📄 ประวัติการใช้งาน")
+        st.subheader("📄 ประวัติการใช้งานย้อนหลัง")
         st.dataframe(df.sort_index(ascending=False), use_container_width=True, height=300)
 
 except Exception as e:
