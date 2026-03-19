@@ -41,7 +41,7 @@ try:
         st.markdown("---")
         st.success(f"💡 **Forecast:** สิ้นเดือนนี้คาดว่า Choo จะมียอดรวมประมาณ **฿{projected_thb:,.2f}** (ประมาณ **${projected_usd_total:,.2f}**)")
 
-        except Exception as e:
+            except Exception as e:
         st.error(f"❌ Error: {e}")
 
         # --- 4. แสดง Metrics ---
@@ -74,5 +74,5 @@ try:
         # --- 6. Forecast Section ---
         st.success(f"💡 **Forecast:** สิ้นเดือนนี้คาดว่าคุณจะมียอดรวมประมาณ **${ Davison_usd:,.2f}** (ประมาณ **฿{projected_usd * ex_rate:,.2f}**)")
 
-except Exception as e:
-    st.error(f"❌ Error: {e}")
+        except Exception as e:
+        st.error(f"❌ Error: {e}")
